@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   mariadb:
     container_name: mariadb
@@ -53,13 +51,13 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/home/gwendal/data/wordpress'
+      device: '/home/gholloco/data/wordpress'
   mariadb:
     driver: local
     driver_opts:
       type: 'none' 
       o: 'bind'
-      device: '/home/gwendal/data/mariadb'
+      device: '/home/gholloco/data/mariadb'
 
 networks:
   inception:

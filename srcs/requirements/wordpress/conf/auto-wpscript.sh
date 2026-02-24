@@ -1,7 +1,11 @@
 #!/bin/bash
 #set -eux
 
-#cd /var/www/html/wordpress
+cd /var/www/wordpress
+
+until mysqladmin ping -h"${SQL_HOST}" -u"${SQL_USER}" -p"${SQL_PASSWORD}" --silent; do
+  sleep 0.5
+done
 
 if ! [ -f "wp-config.php" ];then
 	wp config create --allow-root --dbname=${SQL_DATABASE} \
@@ -12,7 +16,7 @@ if ! [ -f "wp-config.php" ];then
 
 	wp core install --url=https://${DOMAIN_NAME} \
 		--title=${SITE_TITLE} \
-		--admin_user=${ADMIN_PASSWORD} \
+		--admin_user=${ADMIN_USER} \
 		--admin_password=${ADMIN_PASSWORD} \
 		--admin_email=${ADMIN_EMAIL} \
 		--allow-root;
@@ -24,23 +28,17 @@ if ! [ -f "wp-config.php" ];then
 
 	wp cache flush --allow-root
 
-	# interface to create custom contact forms, manage submissions, anti-spam
-	wp plugin install contact-form-7 --activate
+	wp plugin install contact-form-7 --allow-root --activate
 
-	wp language core install en_US --activate
+	wp language core install en_US --allow-root --activate
 
-	#removes default themes and plugins
-	wp theme delete twentynineteen twentytwenty
-	wp plugin delete hello
+	wp theme delete --allow-root twentynineteen twentytwenty
+	wp plugin delete --allow-root hello
 
-	#set the permalink struct
-	wp rewrite structure '/%postname%/'
+	wp rewrite structure --allow-root '/%postname%/'
 
 fi
 
-if [ ! -d /run/php ]; then
-	mkdir /run/php;
-fi
+mkdir -p /run/php;
 
-# starts the PHP FastCGI Process Manager (FPM) in the foreground
 exec /usr/sbin/php-fpm8.2 -F -R
